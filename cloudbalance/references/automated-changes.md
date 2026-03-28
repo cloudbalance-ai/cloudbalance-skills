@@ -58,7 +58,7 @@ specific reason. The change remains in the recommendation list for manual review
 1. **Stop** — CloudBalance stops the instance (causes brief downtime)
 2. **Modify** — Changes the instance type via `ModifyInstanceAttribute`
 3. **Start** — Restarts the instance
-4. **Monitor** — Watches CPU, memory, disk I/O, and network for 24 hours post-change
+4. **Monitor** — Watches CPU, memory, disk I/O, and network for up to one month post-change
 
 **Downtime note:** EC2 instance type changes require a stop-start cycle. Duration varies
 by OS and startup configuration but is typically 1–5 minutes. Plan for this during
@@ -68,7 +68,13 @@ maintenance windows. Public IPs change unless an Elastic IP is attached.
 
 ## Post-change monitoring
 
-CloudBalance monitors key CloudWatch metrics for 24 hours after an instance type change:
+CloudBalance monitors key CloudWatch metrics after an instance type change on this schedule:
+- Every 15 minutes for the first 2 hours
+- Every hour for the first 24 hours
+- Once per day for the first week
+- Once per week for the first month
+
+Alert thresholds:
 
 | Metric | Alert threshold | Agent required? |
 |---|---|---|

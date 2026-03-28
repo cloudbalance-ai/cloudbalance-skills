@@ -47,7 +47,13 @@ CloudWatch → EBS → VolumeReadOps + VolumeWriteOps (per 5-min period)
 
 ### After migrating
 
-CloudBalance monitors four CloudWatch metrics over 24 hours post-change:
+CloudBalance monitors four CloudWatch metrics post-change on this schedule:
+- Every 15 minutes for the first 2 hours
+- Every hour for the first 24 hours
+- Once per day for the first week
+- Once per week for the first month
+
+Monitored metrics and alert thresholds:
 
 | Metric | Alert threshold |
 |---|---|

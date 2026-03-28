@@ -115,7 +115,13 @@ or DNS-based routing to minimize the impact of public IP changes.
 
 ## Post-change monitoring
 
-CloudBalance monitors key CloudWatch metrics for 24 hours after an instance type change:
+CloudBalance monitors key CloudWatch metrics after an instance type change on this schedule:
+- Every 15 minutes for the first 2 hours
+- Every hour for the first 24 hours
+- Once per day for the first week
+- Once per week for the first month
+
+Alert thresholds:
 
 | Metric | Alert threshold | Agent required? |
 |---|---|---|

@@ -151,6 +151,7 @@ tool first), then load the matching reference file for analytical context.
 | `automated-changes.md` | Automation setup, validation checks, EC2 downtime, rollback |
 | `dynamodb-recommendations.md` | DynamoDB capacity modes, 5 recommendation categories, Auto Scaling |
 | `eks-recommendations.md` | EKS cost methodology, utilization targets, Cluster Autoscaler/Karpenter |
+| `rds-rightsizing.md` | RDS instance class changes, maintenance windows, Multi-AZ, Aurora, post-change monitoring |
 | `opensearch-recommendations.md` | OpenSearch idle/underutilized/Serverless classification, savings estimation |
 | `finops-methodology.md` | FinOps reasoning principles - use as a lens on all responses |
 | `finops-aws.md` | AWS FinOps: CUR, Cost Explorer, EC2, RIs, Savings Plans, EDP negotiation |

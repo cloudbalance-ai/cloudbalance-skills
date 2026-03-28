@@ -26,6 +26,16 @@ Both criteria must be met. An instance with low CPU but meaningful network traff
 that hasn't run in the observation window, verify before terminating — check CloudWatch
 for historical CPU spikes outside the 14-day window.
 
+### EC2 Auto Scaling Groups
+
+| Criterion | Threshold |
+|---|---|
+| Peak CPU across all instances | < 5% |
+| Network utilization across all instances | < 5 MB/day |
+
+Both criteria must be met across the group (no single instance may exceed the threshold).
+Recommended action: scale down to one instance or delete the ASG.
+
 ### EBS volumes
 
 | Criterion | Threshold |
