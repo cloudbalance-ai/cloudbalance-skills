@@ -72,8 +72,7 @@ path below appended to the appropriate base URL.
 | Overall Dashboard | `/cb/dashboard/` | Monthly cost summary, savings opportunities, top services |
 | Monthly Dashboard | `/cb/dashboard_m/` | Month-over-month cost trends |
 | Usage Optimization | `/cb/usage-optimization/` | Usage efficiency score and detail |
-| AI Observations | `/cb/ai/ai-observations/` | AI-generated cost trend observations |
-| AI Insights | `/cb/ai/ai-insights/` | Deeper AI-powered cost analysis |
+| AI Insights | `/cb/ai/ai-insights/` | AI-powered cost analysis and optimization observations |
 | FinChat | `/cb/ai/chat/` | Conversational FinOps assistant (internal AI agent) |
 
 ### Rightsizing Recommendations
