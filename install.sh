@@ -164,7 +164,7 @@ WORK_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'cb-skills')
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 echo "  Downloading from GitHub..."
-git clone --depth 1 --quiet "$REPO" "$WORK_DIR/repo"
+git clone --depth 1 --branch main --quiet "$REPO" "$WORK_DIR/repo"
 
 SOURCE="$WORK_DIR/repo/$SKILLS_SOURCE_DIR"
 
