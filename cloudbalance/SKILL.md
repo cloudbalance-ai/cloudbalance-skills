@@ -17,16 +17,39 @@ description: >
 
 ## How to use this skill
 
-This skill gives you live access to your CloudBalance data via MCP tools, combined with
-deep FinOps domain knowledge. For any query, check whether live data is needed (call the
-tool first), then load the matching reference file for analytical context.
+This skill has two types of content that serve different purposes:
 
-### CloudBalance data queries (call tool first, then load reference)
+- **References** (`references/`) — *knowledge base*. Load these for analytical context on any
+  relevant question. They contain FinOps methodology, AWS service details, tool behavior, and
+  platform documentation. Consulted passively — they inform your analysis but don't define
+  what to do.
+
+- **Playbooks** (served via `cb_list_playbooks` / `cb_get_playbook`) — *process definitions*.
+  Fetch and execute these when the user wants a specific deliverable (a proposal, report, or
+  analysis). Each playbook defines the exact tool calls to make, how to analyze the results,
+  and how to format the output.
+
+---
+
+### FinOps playbooks (execute to produce a deliverable)
+
+Playbooks are served dynamically via MCP tools — no local files required.
+
+| User wants | Steps |
+|---|---|
+| To know what playbooks are available | Call `cb_list_playbooks()` |
+| To run a specific playbook | Call `cb_get_playbook(key=<key>)`, then follow the returned instructions exactly |
+
+> Always call `cb_list_playbooks()` first if unsure which playbook to use.
+> The playbook content returned by `cb_get_playbook` is the authoritative process definition —
+> follow its steps in order, do not substitute your own judgment for the defined steps.
+
+### Knowledge base: CloudBalance data queries (call tool first, then load reference)
 
 | Query topic | Call first | Load reference |
 |---|---|---|
-| Cost by service, spending trends, top services | `cb_get_cost_summary` | `references/cloudbalance-platform.md` |
-| Daily cost breakdown, cost spike investigation | `cb_get_cost_summary` (granularity=daily) | `references/cloudbalance-platform.md` |
+| Cost by service, spending trends, top services | `cb_get_cost_summary` | `references/cloudbalance-mcp-tools.md` |
+| Daily cost breakdown, cost spike investigation | `cb_get_cost_summary` (granularity=daily) | `references/cloudbalance-mcp-tools.md` |
 | Savings Plans performance, coverage, utilization | `cb_get_commitment_performance` | `references/savings-plans.md` |
 | Reserved Instance performance | `cb_get_commitment_performance` (types=["EC2","RDS"]) | `references/savings-plans.md` |
 | EC2 rightsizing recommendations | `cb_get_co_rec_and_sav_summary` | `references/ec2-rightsizing.md` |
@@ -40,7 +63,7 @@ tool first), then load the matching reference file for analytical context.
 | Current date, month ranges, time context | `cb_time_info` | - |
 | MCP server status | `cb_health` | - |
 
-### AWS BCM escalation (use only when CloudBalance tools cannot answer)
+### Knowledge base: AWS BCM escalation (use only when CloudBalance tools cannot answer)
 
 > AWS BCM tools make live AWS API calls that incur per-request AWS Cost Explorer charges.
 > Always try CloudBalance tools first - they use cached CUR data and are free.
@@ -58,7 +81,7 @@ tool first), then load the matching reference file for analytical context.
 | Savings Plans live CE data | BCM `sp-performance` | `references/savings-plans.md` |
 | Reserved Instance live CE data | BCM `ri-performance` | `references/savings-plans.md` |
 
-### General FinOps knowledge (load reference only)
+### Knowledge base: General FinOps knowledge (load reference only)
 
 | Query topic | Load reference |
 |---|---|
@@ -87,27 +110,41 @@ tool first), then load the matching reference file for analytical context.
 
 0. **On bare invocation** - if `/cloudbalance` is invoked with no query, do NOT call
    any tools. Instead, greet the user and ask what they want to explore:
-   - Your AWS cost data via CloudBalance (cost trends, commitments, rightsizing)?
-   - A FinOps question or general guidance?
+   - **FinOps playbooks** — run a full proposal or report (EC2 rightsizing, commitment
+     analysis, and more). Ask: *"Would you like me to run a playbook?"*
+   - **AWS cost data** — trends, top services, daily breakdowns
+   - **Commitments** — Savings Plans & Reserved Instance performance
+   - **Rightsizing** — EC2, EBS, RDS, or idle resources
+   - **FinOps guidance** — AWS, AI costs, tagging, multi-cloud, and more
    Do not run tools or generate analysis until the user specifies what they want.
 
-1. **Clarify before diving in** - for ambiguous queries, ask one focused question before
+1. **Check for playbook relevance** - before answering, check whether the query relates
+   to a FinOps playbook:
+   - If the user **explicitly requests** a deliverable ("run", "generate", "create a proposal/
+     report/plan") — call `cb_list_playbooks()` to find the matching key, then call
+     `cb_get_playbook(key=<key>)` and follow the returned steps exactly.
+   - If the query **could be answered** by running a playbook but the user hasn't asked for
+     one — answer the question directly first, then offer: *"Would you like me to run the
+     full [playbook name]? It produces a prioritized [proposal/report] ready for review."*
+   - If the query is **unrelated to any playbook** — proceed normally, do not mention playbooks.
+
+2. **Clarify before diving in** - for ambiguous queries, ask one focused question before
    calling tools or generating analysis. For example: "Would you like me to pull your
    AWS cost data via CloudBalance, or are you looking for general guidance on this topic?"
 
-2. **Check for live data need** - if the query requires current cost/commitment/recommendation
+3. **Check for live data need** - if the query requires current cost/commitment/recommendation
    data, call the appropriate CloudBalance MCP tool first
 
-3. **Load** the matching reference file(s) as analytical context
+4. **Load** the matching reference file(s) as analytical context
 
-4. **Diagnose before prescribing** - understand the current state before recommending
+5. **Diagnose before prescribing** - understand the current state before recommending
 
-5. **Connect cost to value** - every recommendation should link spend to a business outcome
+6. **Connect cost to value** - every recommendation should link spend to a business outcome
 
-6. **Recommend progressively** - quick wins first, structural changes second
+7. **Recommend progressively** - quick wins first, structural changes second
 
-7. **Link to CloudBalance pages** where relevant - use full clickable URLs by combining
-   the base URL from `references/cloudbalance-platform.md` with the page path, e.g.
+8. **Link to CloudBalance pages** where relevant - call `cb_get_platform_context()` once
+   to get the correct base URL for this environment, then combine with the page path, e.g.
    `[Commitment Planning](https://www.cloudbalance.ai/cb/commitment/commitment-planning/)`.
    Never use bare paths like `/cb/...` — they are not clickable.
 
@@ -121,7 +158,7 @@ tool first), then load the matching reference file for analytical context.
 - **Savings estimates**: CloudBalance savings are on-demand equivalent minus recommended
   instance cost - they represent potential savings, not guaranteed outcomes
 - **Platform links**: when users need more detail, link them to the relevant CloudBalance page
-  (see `references/cloudbalance-platform.md` for URL patterns)
+  (call `cb_get_platform_context()` for the correct base URL and page paths)
 - **Data freshness**: CUR cost data refreshes twice daily, recommendations daily, commitments daily -
   set expectations accordingly
 
@@ -138,11 +175,31 @@ tool first), then load the matching reference file for analytical context.
 
 ---
 
-## Reference files
+## Playbooks (served dynamically via `cb_list_playbooks` / `cb_get_playbook`)
+
+*Process definitions — execute these to produce a specific deliverable.*
+*Always call `cb_list_playbooks()` for the authoritative current catalog.*
+*The table below is a hint list for pattern-matching user intent — it may not reflect the latest additions.*
+
+| Key | Deliverable |
+|---|---|
+| `ec2_rightsizing_proposal` | Prioritized EC2 rightsizing proposal with risk scores and savings estimates |
+| `idle_cleanup_proposal` | Prioritized list of idle EC2 instances for stop/cleanup review |
+| `ai_rightsizing_observations` | Narrative rightsizing opportunity summary with focus recommendations |
+| `ai_cost_trends` | Month-over-month cost trends by service with key observations and current month projection |
+| `daily_cost_digest` | Concise daily AWS cost summary with day-over-day change and MTD trajectory |
+| `cost_anomaly_investigation` | Investigation of unusual cost movements with structured findings and suggested next steps |
+| `ai_commitment_health` | Commitment health review: utilization rates, coverage gaps, and expiry risks |
+| `commitment_expiry_alert` | Commitments expiring within 90 days with savings-at-risk estimates and renewal checklist |
+
+---
+
+## Reference files (`references/`)
+
+*Knowledge base — load these for analytical context.*
 
 | File | Contents |
 |---|---|
-| `cloudbalance-platform.md` | CloudBalance pages, URLs, data model, account structure, data freshness |
 | `cloudbalance-mcp-tools.md` | MCP tool reference: parameters, examples, tool selection guide |
 | `ec2-rightsizing.md` | EC2 rightsizing methodology, Graviton, GPU, downtime, post-change monitoring |
 | `ebs-rightsizing.md` | EBS volume types, gp2→gp3 migration, post-change monitoring |
