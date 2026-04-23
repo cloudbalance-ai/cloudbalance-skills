@@ -51,7 +51,8 @@ Playbooks are served dynamically via MCP tools — no local files required.
 | Cost by service, spending trends, top services | `cb_get_cost_summary` | `references/cloudbalance-mcp-tools.md` |
 | Daily cost breakdown, cost spike investigation | `cb_get_cost_summary` (granularity=daily) | `references/cloudbalance-mcp-tools.md` |
 | Savings Plans performance, coverage, utilization | `cb_get_commitment_performance` | `references/savings-plans.md` |
-| Reserved Instance performance | `cb_get_commitment_performance` (types=["EC2","RDS"]) | `references/savings-plans.md` |
+| Reserved Instance performance (EC2/RDS/ElastiCache/OpenSearch/Redshift) | `cb_get_commitment_performance` (defaults to all types; filter with types=["EC2"] etc.) | `references/savings-plans.md` |
+| Current-month daily commitment utilization (avoids CUR lag) | `cb_get_commitment_performance` (granularity=daily) | `references/cloudbalance-mcp-tools.md` |
 | EC2 rightsizing recommendations | `cb_get_co_rec_and_sav_summary` | `references/ec2-rightsizing.md` |
 | EBS volume optimization, gp2→gp3 | `cb_get_co_rec_and_sav_summary` | `references/ebs-rightsizing.md` |
 | RDS rightsizing recommendations | `cb_get_co_rec_and_sav_summary` | `references/ec2-rightsizing.md` |
@@ -78,8 +79,8 @@ Playbooks are served dynamically via MCP tools — no local files required.
 | Live Compute Optimizer recommendations | BCM `compute-optimizer` | `references/ec2-rightsizing.md` |
 | Cost Optimization Hub recommendations | BCM `cost-optimization` | `references/ec2-rightsizing.md` |
 | S3 Storage Lens metrics | BCM `storage-lens` | `references/finops-aws.md` |
-| Savings Plans live CE data | BCM `sp-performance` | `references/savings-plans.md` |
-| Reserved Instance live CE data | BCM `ri-performance` | `references/savings-plans.md` |
+| Savings Plans CE data outside CB data window | BCM `sp-performance` | `references/savings-plans.md` |
+| Reserved Instance CE data outside CB data window | BCM `ri-performance` | `references/savings-plans.md` |
 
 ### Knowledge base: General FinOps knowledge (load reference only)
 
@@ -185,11 +186,11 @@ Playbooks are served dynamically via MCP tools — no local files required.
 |---|---|
 | `ec2_rightsizing_proposal` | Prioritized EC2 rightsizing proposal with risk scores and savings estimates |
 | `idle_cleanup_proposal` | Prioritized list of idle EC2 instances for stop/cleanup review |
-| `ai_rightsizing_observations` | Narrative rightsizing opportunity summary with focus recommendations |
-| `ai_cost_trends` | Month-over-month cost trends by service with key observations and current month projection |
+| `rightsizing_observations` | Narrative rightsizing opportunity summary with focus recommendations |
+| `cost_trends` | Month-over-month cost trends by service with key observations and current month projection |
 | `daily_cost_digest` | Concise daily AWS cost summary with day-over-day change and MTD trajectory |
 | `cost_anomaly_investigation` | Investigation of unusual cost movements with structured findings and suggested next steps |
-| `ai_commitment_health` | Commitment health review: utilization rates, coverage gaps, and expiry risks |
+| `commitment_health` | Commitment health review: utilization rates, coverage gaps, and expiry risks |
 | `commitment_expiry_alert` | Commitments expiring within 90 days with savings-at-risk estimates and renewal checklist |
 
 ---

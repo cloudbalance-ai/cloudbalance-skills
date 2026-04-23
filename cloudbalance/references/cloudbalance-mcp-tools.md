@@ -117,15 +117,18 @@ cb_get_cost_summary(
 
 ### `cb_get_commitment_performance`
 
-Returns Savings Plans and Reserved Instance commitments with optional monthly performance data.
+Returns Savings Plans and Reserved Instance commitments with optional performance data
+at monthly or daily granularity.
 
 **When to use:**
 - SP or RI utilization and savings questions
 - Coverage rate analysis
 - Commitment expiration review
-- Month-over-month commitment performance
+- Month-over-month or day-by-day commitment performance
+- Current-month utilization through yesterday (use `granularity="daily"`)
 
-**Prefer over BCM `sp-performance` and `ri-performance`** for standard commitment questions.
+**Prefer over BCM `sp-performance` and `ri-performance`** for all commitment questions,
+including current-month daily data.
 
 **Parameters:**
 
@@ -134,23 +137,40 @@ Returns Savings Plans and Reserved Instance commitments with optional monthly pe
 | `include_meta` | No | `true`/`false` | `false` |
 | `include_performance` | No | `true`/`false` | `false` |
 | `active_only` | No | `true`/`false` | `true` |
-| `types` | No | JSON array: `"SP"`, `"EC2"`, `"RDS"` | `["SP","EC2","RDS"]` |
-| `time_range` | No | `"YYYY-MM"` or `"YYYY-MM..YYYY-MM"` | Current month |
+| `types` | No | JSON array: `"SP"`, `"EC2"`, `"RDS"`, `"ECACHE"`, `"OS"`, `"RS"` | all types |
+| `granularity` | No | `"monthly"` or `"daily"` | `"monthly"` |
+| `time_range` | No | See formats below | Current month (monthly) / current month-to-date (daily) |
+
+**`time_range` formats by granularity:**
+- Monthly: `"YYYY-MM"` or `"YYYY-MM..YYYY-MM"`
+- Daily: `"YYYY-MM-DD"` or `"YYYY-MM-DD..YYYY-MM-DD"`
 
 **Commitment types:**
 - `"SP"` - Savings Plans (Compute SP, EC2 Instance SP, SageMaker SP)
 - `"EC2"` - EC2 Reserved Instances
 - `"RDS"` - RDS Reserved Instances
+- `"ECACHE"` - ElastiCache Reserved Nodes
+- `"OS"` - OpenSearch Reserved Instances
+- `"RS"` - Redshift Reserved Nodes
 
 **Rate fields are fractions (0..1) - multiply by 100 for percentages.**
 
 **Example invocations:**
 
-All active commitments with 3-month performance:
+All active commitments with 3-month monthly performance:
 ```
 cb_get_commitment_performance(
   include_performance=True,
   time_range="2024-12..2025-02"
+)
+```
+
+Current month daily performance through yesterday (avoids CUR data lag):
+```
+cb_get_commitment_performance(
+  include_performance=True,
+  granularity="daily",
+  time_range="2025-03-01..2025-03-25"
 )
 ```
 
@@ -222,8 +242,8 @@ Use only when CloudBalance tools cannot answer the query.
 | AWS on-demand pricing lookup | `aws-pricing` |
 | Live Compute Optimizer recommendations | `compute-optimizer` |
 | Cost Optimization Hub recommendations | `cost-optimization` |
-| Savings Plans CE data (live coverage/utilization) | `sp-performance` |
-| RI CE data (live coverage/utilization) | `ri-performance` |
+| Savings Plans CE data (live, outside CB data window) | `sp-performance` |
+| RI CE data (live, outside CB data window) | `ri-performance` |
 | Pricing Calculator workload estimates | `bcm-pricing-calc` |
 | S3 Storage Lens metrics | `storage-lens` |
 | Cross-session SQL queries on cost data | `session-sql` |
@@ -254,8 +274,9 @@ Cost question?
   └── Resource-level (last 14 days) → BCM cost-explorer (WithResources)
 
 Commitment question?
-  └── SP/RI performance, coverage, utilization → cb_get_commitment_performance
-  └── Need live CE data specifically → BCM sp-performance / ri-performance
+  └── SP/RI performance, coverage, utilization (monthly or daily) → cb_get_commitment_performance
+  └── Current month daily data (avoids CUR lag) → cb_get_commitment_performance(granularity="daily")
+  └── Live CE data outside CB data window → BCM sp-performance / ri-performance
 
 Rightsizing question?
   └── Summary of recommendations → cb_get_co_rec_and_sav_summary

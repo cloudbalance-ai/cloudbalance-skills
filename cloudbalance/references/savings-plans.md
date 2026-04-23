@@ -73,7 +73,7 @@ These two metrics measure different things and diagnose different problems:
 
 CloudBalance's `cb_get_commitment_performance` tool returns:
 
-- **Per-commitment records**: ARN, type (SP/EC2/RDS), start/end dates, commitment amount
+- **Per-commitment records**: ARN, type (SP/EC2/RDS/ECACHE/OS/RS), start/end dates, commitment amount
   (hourly for SPs, instance count for RIs), estimated total savings
 - **Performance data** (when `include_performance=True`): monthly breakdown of utilization,
   coverage, and actual savings for each commitment over the requested time range
