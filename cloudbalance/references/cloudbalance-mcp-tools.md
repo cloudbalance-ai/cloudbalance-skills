@@ -125,7 +125,7 @@ at monthly or daily granularity.
 - Coverage rate analysis
 - Commitment expiration review
 - Month-over-month or day-by-day commitment performance
-- Current-month utilization through yesterday (use `granularity="daily"`)
+- Current-month utilization through 2 days ago (use `granularity="daily"`)
 
 **Prefer over BCM `sp-performance` and `ri-performance`** for all commitment questions,
 including current-month daily data.
@@ -165,7 +165,7 @@ cb_get_commitment_performance(
 )
 ```
 
-Current month daily performance through yesterday (avoids CUR data lag):
+Current month daily performance through 2 days ago (avoids CUR data lag):
 ```
 cb_get_commitment_performance(
   include_performance=True,
