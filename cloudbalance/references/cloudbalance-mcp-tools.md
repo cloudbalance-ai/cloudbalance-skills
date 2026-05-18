@@ -226,6 +226,101 @@ cb_get_co_rec_and_sav_summary(include_meta=True)
 
 ---
 
+### `cb_get_platform_context`
+
+Returns the CloudBalance app base URL, page paths, and MCP endpoint URLs for this environment.
+
+**When to use:** Call once whenever you need to generate a clickable link to a CloudBalance page.
+Never hard-code URLs — base URL varies across prod, staging, and BYOC environments.
+
+**Parameters:** None. Combine `base_url` + a `pages` path to build links, e.g.:
+`[Commitment Planning](base_url + pages.commitment_planning)`
+
+---
+
+### `cb_list_playbooks` / `cb_get_playbook`
+
+Discovery and retrieval tools for FinOps playbooks.
+
+**When to use:**
+- Call `cb_list_playbooks()` before running any playbook — gets the live catalog including custom company playbooks not listed in static documentation
+- Call `cb_get_playbook(key=<key>)` to retrieve the authoritative step-by-step process definition
+- Always follow the returned playbook steps exactly — do not substitute your own judgment for the defined steps
+
+---
+
+### `cb_list_references` / `cb_get_reference`
+
+Discovery and retrieval tools for FinOps reference documents.
+
+**When to use:**
+- Call `cb_list_references()` to discover the full catalog when a query topic isn't in your standard knowledge mapping
+- Call `cb_get_reference(key=<key>)` to load domain knowledge before answering FinOps questions
+
+---
+
+### `cb_schedule_resource_change`
+
+Submits a change request to CloudBalance for a specific rightsizing or cleanup action.
+
+**When to use:** When the user has reviewed a proposal and explicitly wants to schedule a specific change.
+
+**Before calling:** Always confirm with the user:
+1. The exact resource (ID, type, account, region) and the action being scheduled
+2. The maintenance window — call the tool first to retrieve `next_maintenance_window_display`, present it, and get user confirmation before treating the change as submitted
+3. Whether to take a snapshot before execution
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|---|---|---|
+| `resource_type` | Yes | `"ec2"`, `"ebs"`, `"rds"`, or `"idle"` |
+| `resource_id` | Yes | Instance ID, volume ID, or DB identifier |
+| `region` | Yes | AWS region (e.g., `"us-east-1"`) |
+| `action_type` | Yes | `"resize"`, `"stop"`, `"delete"`, or `"modify"` |
+| `action_value` | Conditional | Required for resize/modify — target instance type or config value |
+| `take_snapshot` | No | `true`/`false` — snapshot before executing (default varies by resource type) |
+| `scheduled_time` | No | ISO datetime — omit to use the next maintenance window |
+
+**Returns:** `approval_token`, `status`, `next_maintenance_window_display`, and `requires_approval` flag.
+
+**Batch changes:** Call once per resource. Present all resources to the user for confirmation before calling in sequence.
+
+---
+
+### `cb_list_pending_changes`
+
+Lists all active change requests — pending approval or approved and scheduled.
+
+**When to use:** Check what changes are already queued before scheduling more, or verify a previously submitted change was received.
+
+**Parameters:**
+
+| Parameter | Required | Values | Default |
+|---|---|---|---|
+| `resource_type` | No | `"ec2"`, `"ebs"`, `"rds"`, `"idle"` | all types |
+| `status` | No | `"pending_approval"`, `"approved"`, `"scheduled"` | all active |
+
+**Returns:** Array of change requests with `approval_token`, `resource_id`, `action`, `status`, and `scheduled_time`.
+
+---
+
+### `cb_get_change_request`
+
+Fetches current status and execution details for a specific change request.
+
+**When to use:** Check the outcome of a previously submitted change, verify approval status, or get execution/rollback details.
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|---|---|---|
+| `approval_token` | Yes | Token from `cb_schedule_resource_change` or `cb_list_pending_changes` |
+
+**Returns:** Full change request record including `status`, `approved_by`, `executed_at`, `result`, and any failure notes.
+
+---
+
 ## BCM MCP server (`/mcp-bcm`)
 
 These tools make live AWS API calls. They incur per-request AWS Cost Explorer charges.
@@ -287,4 +382,18 @@ Anomaly / budget question?
 
 Date/time context?
   └── Always call cb_time_info first
+
+Need a link to a CloudBalance page?
+  └── cb_get_platform_context → combine base_url + pages path
+
+Running a playbook?
+  └── cb_list_playbooks → find key → cb_get_playbook(key=...)
+
+Loading reference knowledge?
+  └── cb_list_references → find key → cb_get_reference(key=...)
+
+Scheduling a resource change?
+  └── Confirm resource + action with user → cb_schedule_resource_change
+  └── Check what's already queued → cb_list_pending_changes
+  └── Check a specific change status → cb_get_change_request(approval_token=...)
 ```

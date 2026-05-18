@@ -60,7 +60,11 @@ Playbooks are served dynamically via MCP tools — no local files required.
 | DynamoDB capacity optimization | - | `references/dynamodb-recommendations.md` |
 | EKS cluster cost optimization | - | `references/eks-recommendations.md` |
 | OpenSearch domain optimization | - | `references/opensearch-recommendations.md` |
-| Automated changes, scheduling, validation | - | `references/automated-changes.md` |
+| Automated changes, validation, rollback | - | `references/automated-changes.md` |
+| Scheduling a rightsizing change | `cb_schedule_resource_change` | `references/automated-changes.md`, `references/cloudbalance-mcp-tools.md` |
+| Checking queued or in-flight changes | `cb_list_pending_changes` | `references/cloudbalance-mcp-tools.md` |
+| Checking status of a specific change | `cb_get_change_request` | `references/cloudbalance-mcp-tools.md` |
+| Generating links to CloudBalance pages | `cb_get_platform_context` | - |
 | Current date, month ranges, time context | `cb_time_info` | - |
 | MCP server status | `cb_health` | - |
 
